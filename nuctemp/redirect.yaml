@@ -1,0 +1,63 @@
+id: redirect-oauth-misconfig
+
+info:
+  name: Redirect and OAuth Misconfiguration Detection
+  author: ProjectDiscoveryAI
+  severity: high
+  description: |
+    Detects vulnerable redirect chains and OAuth misconfigurations including risky redirect_uri parameters, open redirects, and token leakage.
+  tags: redirect, oauth, misconfiguration, token-leakage, url-parameter, phishing
+
+http:
+  - raw:
+      - |
+        GET /redirect?url=http://{{interactsh-url}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /login/oauth?next=http://{{interactsh-url}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /auth/callback?redirect_uri=http://{{interactsh-url}} HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /signin-oidc?returnUrl=http://{{interactsh-url}} HTTP/1.1
+        Host: {{Hostname}}
+
+    stop-at-first-match: true
+    matchers-condition: or
+    matchers:
+      - type: regex
+        regex:
+          - "(?i)Location:\s*http://[^"]*interact\.sh"
+        part: header
+
+      - type: regex
+        regex:
+          - "(?i)redirect_uri=[^&]*http://[^"]*interact\.sh"
+        part: header
+
+      - type: regex
+        regex:
+          - "(?i)state=[0-9a-fA-F]{8,}"
+        part: body
+
+      - type: status
+        status:
+          - 302
+          - 301
+
+    extractors:
+      - type: regex
+        name: redirect-chain
+        part: header
+        regex:
+          - "Location:\\s*([^"]*)"
+
+      - type: regex
+        name: oauth-tokens
+        part: body
+        regex:
+          - "(?i)(state|code|access_token)=[0-9a-zA-Z]+"

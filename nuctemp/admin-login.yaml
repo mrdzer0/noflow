@@ -1,0 +1,172 @@
+id: exposed-admin-panel
+
+info:
+  name: Exposed Admin Panel Detection
+  author: ProjectDiscoveryAI
+  severity: medium
+  description: |
+    Detects exposed admin or login panels that could lead to unauthorized access to sensitive areas of the web application. This includes common paths like /admin, /dashboard, /wp-login.php, and more as listed in the template.
+  tags: admin, panel, login
+
+http:
+  - raw:
+      - |
+        GET /admin HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /administrator HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /admin/login HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /adminpanel HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /admin-console HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /dashboard HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /login HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /user/login HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /wp-login.php HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /wp-admin HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /cpanel HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /webadmin HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /backend HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /system/login HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /auth HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /auth/login HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /secure HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /portal HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /manager HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /console HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /siteadmin HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /adminarea HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /controlpanel HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /staff HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /moderator HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /superadmin HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /cms HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /admin.php HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /admin.html HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /admin.asp HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /admin.jsp HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /admin.aspx HTTP/1.1
+        Host: {{Hostname}}
+
+    stop-at-first-match: true
+    matchers-condition: or
+    matchers:
+      - type: word
+        words:
+          - "Admin Panel"
+          - "Login"
+          - "Dashboard"
+          - "Sign In"
+          - "Backend"
+        part: body
+
+      - type: regex
+        regex:
+          - "(?i)<title>.*admin.*</title>"
+          - "(?i)<title>.*login.*</title>"
+          - "(?i)<title>.*dashboard.*</title>"
+        part: body
+
+      - type: status
+        status:
+          - 200
+          - 302
+          - 403
+          - 401
+
+    extractors:
+      - type: regex
+        name: title-content
+        part: body
+        regex:
+          - "(?i)<title>(.*?)</title>"

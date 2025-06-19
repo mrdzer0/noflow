@@ -1,0 +1,146 @@
+id: exposed-sensitive-files
+
+info:
+  name: Exposed Sensitive Files Detection
+  author: ProjectDiscoveryAI
+  severity: high
+  description: |
+    Detects exposed sensitive files or development artifacts on web servers that could lead to severe security risks, such as credential leaks, environment disclosure, or full source code access. This template focuses on direct file access via HTTP paths without requiring interaction or guessing dynamic filenames.
+  tags: exposure, sensitive-files, credentials, backup
+
+http:
+  - raw:
+      - |
+        GET /.env HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /.git/config HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /.git/HEAD HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /.gitignore HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /.svn/entries HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /.DS_Store HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /backup.zip HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /backup.tar.gz HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /db.sql HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /database.sql HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /site-backup.zip HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /config.php.bak HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /web.config.bak HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /config.js.old HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /debug.log HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /error.log HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /phpinfo.php HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /composer.lock HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /package-lock.json HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /id_rsa HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /credentials.json HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /firebase.json HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /config.yml HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /docker-compose.yml HTTP/1.1
+        Host: {{Hostname}}
+
+      - |
+        GET /key.pem HTTP/1.1
+        Host: {{Hostname}}
+
+    stop-at-first-match: true
+    matchers-condition: or
+    matchers:
+      - type: status
+        status:
+          - 200
+          - 206
+
+      - type: word
+        words:
+          - "DB_HOST"
+          - "DB_PASSWORD"
+          - "PRIVATE KEY"
+          - "BEGIN RSA PRIVATE KEY"
+        part: body
+
+      - type: regex
+        regex:
+          - "(?i)BEGIN RSA PRIVATE KEY"
+          - "(?i)PRIVATE KEY"
+          - "(?i)DB_HOST"
+          - "(?i)DB_PASSWORD"
+        part: body
+
+      - type: size
+        size:
+          - 1
+
+    extractors:
+      - type: regex
+        name: file-content
+        part: body
+        regex:
+          - "(?i)(DB_HOST|DB_PASSWORD|PRIVATE KEY|BEGIN RSA PRIVATE KEY).*"

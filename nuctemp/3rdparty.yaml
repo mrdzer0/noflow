@@ -1,0 +1,71 @@
+id: exposed-third-party-services
+
+info:
+  name: Exposed Third-Party Services Detection
+  author: ProjectDiscoveryAI
+  severity: high
+  description: |
+    Detects publicly exposed third-party services and developer dashboards that should not be accessible on internet-facing subdomains. The template identifies services based on HTTP titles, body content, known paths, and optional favicon hashes.
+  tags: exposure, dashboard, unauth, third-party
+
+http:
+  - raw:
+      - |
+        GET / HTTP/1.1
+        Host: {{Hostname}}
+
+    stop-at-first-match: true
+    matchers-condition: or
+    matchers:
+      - type: status
+        status:
+          - 200
+          - 401
+
+      - type: word
+        words:
+          - "Grafana"
+          - "Welcome to Jenkins"
+          - "Kibana | Elastic"
+          - "GitLab CE/EE"
+          - "phpMyAdmin"
+          - "RabbitMQ Management"
+          - "Apache Solr"
+          - "Netdata"
+          - "Swagger UI"
+        part: title
+
+      - type: regex
+        regex:
+          - "(?i)Grafana Labs"
+          - "(?i)Jenkins Dashboard"
+          - "(?i)phpMyAdmin"
+          - "(?i)RabbitMQ Management"
+          - "(?i)Nexus Repository Manager"
+          - "(?i)ElasticSearch"
+          - "(?i)Rundeck"
+          - "(?i)Swagger UI"
+          - "(?i)Nginx"
+          - "(?i)Apache"
+        part: body
+
+      - type: word
+        words:
+          - "grafana.png"
+          - "jenkins.png"
+          - "phpmyadmin.css"
+        part: body
+
+      - type: regex
+        regex:
+          - "(?i)admin"
+          - "(?i)dashboard"
+          - "(?i)login"
+        part: body
+
+    extractors:
+      - type: regex
+        name: service-content
+        part: body
+        regex:
+          - "(?i)(Grafana|Jenkins|phpMyAdmin|RabbitMQ|Nexus Repository Manager|ElasticSearch|Swagger UI).*"

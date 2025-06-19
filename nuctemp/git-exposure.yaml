@@ -1,0 +1,15 @@
+id: git-exposure  
+info:  
+  name: Exposed .git Folder  
+  severity: medium  
+  author: yourname  
+
+http:  
+  - method: GET  
+    path:  
+      - "{{BaseURL}}/.git/config"  
+
+    matchers:  
+      - type: word  
+        words:  
+          - "[core]"  
