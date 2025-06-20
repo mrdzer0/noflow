@@ -33,6 +33,12 @@ mkdir -p "$outdir"
 mkdir -p "$outdir/raw"
 SECONDS=0
 
+# ----------- CHECK DEPENDENCIES -----------
+REQUIRED_TOOLS=(subfinder assetfinder chaos curl unzip dnsx httpx crtsh)
+for tool in "${REQUIRED_TOOLS[@]}"; do
+  check_tool "$tool"
+done
+
 format_time() {
   local T=$1
   local H=$((T/3600))

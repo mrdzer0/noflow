@@ -7,6 +7,12 @@ usage() {
   exit 1
 }
 
+# ----------- CHECK DEPENDENCIES -----------
+REQUIRED_TOOLS=(subzy httpx gf)
+for tool in "${REQUIRED_TOOLS[@]}"; do
+  check_tool "$tool"
+done
+
 start_time=$(date +%s)
 # ========================== FUNCTION BLOCK ==========================
 find_and_check_jsfile() {

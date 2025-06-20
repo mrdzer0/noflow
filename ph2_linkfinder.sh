@@ -31,6 +31,12 @@ ALL_LINKS="$outdir/raw/all_links.txt"
 ALLURL_CLEAN="$outdir/allurl_uniq.txt"
 SECONDS=0
 
+# ----------- CHECK DEPENDENCIES -----------
+REQUIRED_TOOLS=(katana gau waybackurls uro)
+for tool in "${REQUIRED_TOOLS[@]}"; do
+  check_tool "$tool"
+done
+
 format_time() {
   local T=$1
   local H=$((T/3600))
