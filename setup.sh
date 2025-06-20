@@ -1,69 +1,96 @@
 #!/bin/bash
-
-set -e  # Stop on error
-
-echo "🚀 [1/9] Menyiapkan lingkungan Go & PATH..."
+set -e
 
 export GOPATH="$HOME/go"
 export PATH="$GOPATH/bin:$HOME/.local/bin:$PATH"
-mkdir -p "$GOPATH/bin"
+mkdir -p $HOME/nfltools
 
-echo "📦 [2/9] Menginstal dependency sistem..."
-apt update && apt install -y libpcap-dev git curl wget unzip python3-pip pipx
+# List tools dan repo/source
+declare -A TOOLS_SOURCES=(
+    [subzy]="go install -v github.com/PentestPad/subzy@latest"
+    [naabu]="go install -v github.com/projectdiscovery/naabu/v2/cmd/naabu@latest"
+    [chaos]="go install -v github.com/projectdiscovery/chaos-client/cmd/chaos@latest"
+    [subfinder]="go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest"
+    [assetfinder]="go install -v github.com/tomnomnom/assetfinder@latest"
+    [httpx]="go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest"
+    [nuclei]="go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest"
+    [gau]="go install -v github.com/lc/gau/v2/cmd/gau@latest"
+    [waybackurls]="go install -v github.com/tomnomnom/waybackurls@latest"
+    [gf]="go install -v github.com/tomnomnom/gf@latest"
+    [uro]="pipx install uro"
+    [crtsh]="manual_crtsh"
+    [linkfinder]="manual_linkfinder"
+)
 
-echo "🧼 [3/9] Membersihkan folder hasil git clone sebelumnya..."
-rm -rf /opt/crtsh.py /tmp/Gf-Patterns
+# Fungsi instalasi manual crtsh
+manual_crtsh() {
+    cd $HOME/nfltools
+    git clone https://github.com/YashGoti/crtsh.py.git
+    cd crtsh.py
+    mv crtsh.py crtsh
+    chmod +x crtsh
+    cp crtsh /usr/bin/
+}
 
-echo "📥 [4/9] Instalasi tools Go..."
+# Fungsi instalasi manual linkfinder
+manual_linkfinder() {
+    cd $HOME/nfltools
+    git clone https://github.com/GerbenJavado/LinkFinder.git
+    cd LinkFinder
+    python3 setup.py install
+    pip3 install -r requirements.txt --break-system-packages
+    sed -i '1s|^#!/usr/bin/env python$|#!/usr/bin/env python3|' linkfinder.py
+    ln -s "$HOME/nfltools/LinkFinder/linkfinder.py" "$HOME/.local/bin/linkfinder"
+}
 
-go install -v github.com/PentestPad/subzy@latest
-go install -v github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
-go install -v github.com/projectdiscovery/chaos-client/cmd/chaos@latest
-go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-go install -v github.com/tomnomnom/assetfinder@latest
-go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
-go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
-go install -v github.com/lc/gau/v2/cmd/gau@latest
-go install -v github.com/tomnomnom/waybackurls@latest
-go install -v github.com/tomnomnom/gf@latest
+# Step 1: Cek tools
+echo "🔎 Mengecek tools yang sudah ada di PATH ..."
+missing_tools=()
 
-echo "🐍 [5/9] Instalasi uro via pipx..."
-pipx install --force uro
-
-echo "📦 [6/9] Instalasi manual crtsh..."
-cd /opt
-git clone https://github.com/YashGoti/crtsh.py.git
-cd crtsh.py
-mv crtsh.py crtsh
-chmod +x crtsh
-cp crtsh /usr/bin/
-
-echo "📦 [7/9] Instalasi manual linkfinder..."
-cd /opt
-git clone https://github.com/GerbenJavado/LinkFinder.git
-cd LinkFinder
-python3 setup.py install
-pip3 install -r requirements.txt --break-system-packages
-sed -i '1s|^#!/usr/bin/env python$|#!/usr/bin/env python3|' linkfinder.py
-ln -s "/opt/LinkFinder/linkfinder.py" "$HOME/.local/bin/linkfinder" 
-
-echo "🧩 [8/9] Setup gf dan pattern-nya..."
-mkdir -p ~/.gf
-cp -r "$GOPATH/pkg/mod/github.com/tomnomnom/gf@"*/examples/* ~/.gf/
-git clone https://github.com/1ndianl33t/Gf-Patterns /tmp/Gf-Patterns
-cp /tmp/Gf-Patterns/*.json ~/.gf/
-
-echo "✅ [9/9] Verifikasi semua tools di PATH..."
-
-TOOLS=(subfinder assetfinder chaos httpx naabu nuclei gau waybackurls gf uro subzy crtsh)
-
-for tool in "${TOOLS[@]}"; do
-  if command -v "$tool" >/dev/null 2>&1; then
-    echo "✅ $tool tersedia di PATH"
-  else
-    echo "❌ $tool TIDAK terdeteksi! Cek instalasi"
-  fi
+for tool in "${!TOOLS_SOURCES[@]}"; do
+    if command -v "$tool" >/dev/null 2>&1; then
+        echo "✅ $tool sudah ada"
+    else
+        echo "❌ $tool BELUM ADA"
+        missing_tools+=("$tool")
+    fi
 done
 
-echo -e "\n📍 Final PATH environment: $PATH"
-echo "✅ Semua tools berhasil diinstal dan siap dipakai di SSH/N8N."
+if [[ ${#missing_tools[@]} -eq 0 ]]; then
+    echo "🎉 Semua tools sudah terinstall!"
+    exit 0
+fi
+
+# Tampilkan summary dan tanya ke user
+echo ""
+echo "⚠️  Tools berikut BELUM ADA:"
+for tool in "${missing_tools[@]}"; do
+    echo "  - $tool"
+done
+
+read -p "➡️  Apakah ingin menginstall tools yang belum ada? (y/n): " jawab
+
+if [[ "$jawab" != "y" ]]; then
+    echo "🚫 Install dibatalkan. Tidak ada perubahan dilakukan."
+    exit 0
+fi
+
+# Step 2: Install tools yang belum ada
+echo ""
+echo "🚀 Mulai menginstall tools yang belum ada ..."
+for tool in "${missing_tools[@]}"; do
+    install_cmd=${TOOLS_SOURCES[$tool]}
+    if [[ "$install_cmd" == manual_crtsh ]]; then
+        echo "🔨 Menginstall crtsh secara manual..."
+        manual_crtsh
+    elif [[ "$install_cmd" == manual_linkfinder ]]; then
+        echo "🔨 Menginstall linkfinder secara manual..."
+        manual_linkfinder
+    else
+        echo "🔨 Menjalankan: $install_cmd"
+        eval "$install_cmd"
+    fi
+done
+
+echo ""
+echo "✅ Instalasi selesai. Silakan cek kembali dengan menjalankan script ini lagi."
