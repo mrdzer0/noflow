@@ -1,0 +1,33 @@
+[ * ] Fingerprints found; checking integrity with an upstream
+[ * ] Loaded 37 targets
+[ * ] Loaded 76 fingerprints
+[ No ] HTTPS by default (--https)
+[ 10 ] Concurrent requests (--concurrency)
+[ Yes ] Check target only if SSL is valid (--verify_ssl)
+[ 10 ] HTTP request timeout (in seconds) (--timeout)
+[ Yes ] Show only potentially vulnerable subdomains (--hide_fails)
+-----------------
+[ [32mVULNERABLE[0m ]  -  mail.daudaldi.my.id  [ Cargo Collective ]
+[ [34mDISCUSSION[0m ]  -  [Issue #152](https://github.com/EdOverflow/can-i-take-over-xyz/issues/152)
+[ [34mDOCUMENTATION[0m ]  -  [Cargo Support Page](https://support.2.cargocollective.com/Using-a-Third-Party-Domain)
+-----------------
+-----------------
+[ [32mVULNERABLE[0m ]  -  me.daudaldi.my.id  [ Gemfury ]
+[ [34mDISCUSSION[0m ]  -  [Issue #154](https://github.com/EdOverflow/can-i-take-over-xyz/issues/154)
+[ [34mDOCUMENTATION[0m ]  -  [Article](https://khaledibnalwalid.wordpress.com/2020/06/25/gemfury-subdomain-takeover/)
+-----------------
+-----------------
+[ [32mVULNERABLE[0m ]  -  https://me.daudaldi.my.id  [ Gemfury ]
+[ [34mDISCUSSION[0m ]  -  [Issue #154](https://github.com/EdOverflow/can-i-take-over-xyz/issues/154)
+[ [34mDOCUMENTATION[0m ]  -  [Article](https://khaledibnalwalid.wordpress.com/2020/06/25/gemfury-subdomain-takeover/)
+-----------------
+-----------------
+[ [32mVULNERABLE[0m ]  -  about.daudaldi.my.id  [ Gemfury ]
+[ [34mDISCUSSION[0m ]  -  [Issue #154](https://github.com/EdOverflow/can-i-take-over-xyz/issues/154)
+[ [34mDOCUMENTATION[0m ]  -  [Article](https://khaledibnalwalid.wordpress.com/2020/06/25/gemfury-subdomain-takeover/)
+-----------------
+-----------------
+[ [32mVULNERABLE[0m ]  -  http://about.daudaldi.my.id  [ Gemfury ]
+[ [34mDISCUSSION[0m ]  -  [Issue #154](https://github.com/EdOverflow/can-i-take-over-xyz/issues/154)
+[ [34mDOCUMENTATION[0m ]  -  [Article](https://khaledibnalwalid.wordpress.com/2020/06/25/gemfury-subdomain-takeover/)
+-----------------
