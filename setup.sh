@@ -29,7 +29,7 @@ manual_crtsh() {
     cd crtsh.py
     mv crtsh.py crtsh
     chmod +x crtsh
-    cp crtsh /usr/bin/
+    cp crtsh "$HOME/.local/bin/"
 }
 
 # Fungsi instalasi manual linkfinder

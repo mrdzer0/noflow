@@ -8,6 +8,12 @@ usage() {
 }
 
 # ----------- CHECK DEPENDENCIES -----------
+check_tool() {
+  if ! command -v "$1" &>/dev/null; then
+    echo "[!] Required tool not found: $1"
+    exit 1
+  fi
+}
 REQUIRED_TOOLS=(subzy httpx gf)
 for tool in "${REQUIRED_TOOLS[@]}"; do
   check_tool "$tool"
