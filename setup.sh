@@ -5,6 +5,9 @@ export GOPATH="$HOME/go"
 export PATH="$GOPATH/bin:$HOME/.local/bin:$PATH"
 mkdir -p $HOME/nfltools
 
+# libdev buat pcap
+sudo apt-get install libpcap-dev
+
 # List tools dan repo/source
 declare -A TOOLS_SOURCES=(
     [subzy]="go install -v github.com/PentestPad/subzy@latest"
